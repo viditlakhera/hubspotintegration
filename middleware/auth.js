@@ -11,7 +11,7 @@ const authentication = app.get(
       next();
     } else {
       console.log("something is missing in this app");
-      res.send(`<h1>OOPS SOMETHING WENT WRONG!!!!</h1>`);
+      res.html(`<h1>OOPS SOMETHING WENT WRONG!!!!</h1>`);
     }
   },
   (req, res) => {
