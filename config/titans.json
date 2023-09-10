@@ -1,0 +1,21 @@
+{
+    "app": {
+        "port": 3999
+    },
+    "dbconnection": {
+        "host": "testwattmonkdb-do-user-8587296-0.b.db.ondigitalocean.com",
+        "user": "doadmin",
+        "password": "AVNS_3lzv2XN5b491XBspt-2",
+        "database": "titansv4",
+        "port": 25060
+    },
+    "aws": {
+        "accessKeyId": "AKIAZWSE4E5CET3X3XOK",
+        "secretAccessKey": "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",
+        "region": "us-east-1",
+        "params": {
+            "Bucket": "wattmonk"
+        }
+    },
+    "sentry": false
+}
