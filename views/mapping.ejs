@@ -1,0 +1,19 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Array Data Example</title>
+</head>
+<body>
+      <form action="https://fuzzy-guide-qpgwv7gpx9qcxw7-3000.app.github.dev/submit" method="post">
+        <% for (let key in json_object) { %>
+            <div>
+                <label for="<%= key %>"><%= key %>:</label>
+                <input type="text" id="<%= key %>" name="<%= key %>" value="<%= json_object[key] %>">
+            </div>
+        <% } %>
+        <button type="submit">Submit</button>
+    </form>
+
+</body>
+</html>
