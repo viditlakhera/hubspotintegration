@@ -1,0 +1,12 @@
+{
+    "app": {
+        "port": 3000
+    },
+    "dbconnection": {
+        "host": "localhost",
+        "user": "root",
+        "password": "Vidit@4325",
+        "database": "newschema"
+    },
+    "sentry": false
+}
