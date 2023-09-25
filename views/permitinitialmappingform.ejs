@@ -11,7 +11,7 @@
 
 <body>
   <h1>Key-Value Pair Form</h1>
-  <form action="https://d482-61-95-163-126.ngrok-free.app/submit" method="POST">
+  <form action="https://d482-61-95-163-126.ngrok-free.app/api/permit/submit" method="POST">
     <!-- Loop through the array and generate options for each select -->
     <label for="address">address</label>
     <select id="address" name="address">
@@ -55,13 +55,14 @@
       <% }); %>
     </select><br>
 
+
     <label for="name">reviewissues:</label>
     <select id="reviewissues" name="reviewissues">
       <% propertiesname.forEach(function(property) { %>
         <option value="<%= property %>"><%= property %></option>
       <% }); %>
     </select><br>
-    
+
     <button type="submit">submit</button>
   </form>
 

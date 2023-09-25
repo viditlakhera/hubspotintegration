@@ -1,0 +1,18 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Array Data Example</title>
+</head>
+<body>
+      <form action="https://d482-61-95-163-126.ngrok-free.app/api/permit/final" method="post">
+        <% for (let key in json_object) { %>
+            <div>
+                <label for="<%= key %>"><%= key %>:</label>
+                <input type="text" id="<%= key %>" name="<%= key %>" value="<%= json_object[key] %>">
+            </div>
+        <% } %>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

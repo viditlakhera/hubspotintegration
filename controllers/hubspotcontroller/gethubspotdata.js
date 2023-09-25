@@ -11,15 +11,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const pool = require('../../config/mysql');
 
 let userid = '';
-let access_token = 'COWh94mrMRIOQIEAQAAAYQIAAAAYAAEYv4bmFCDm0MgcKMu-fDIUT6rLURruW6uLMANL5uJ8Wqjf2i86MAAAAEcAAAAEAAAAAAAAAAAAgAAAAAAAAAAAACAAfgAeAOABAAAAIAAA_AAAABBwA0IUN1GSMp7CyudlNgWPU-pzoo5PvOdKA25hMVIAWgA';
+let access_token = 'CKCN69esMRIOQIEAQAAAYQIAAAAYAAEYv4bmFCDm0MgcKMu-fDIUZS5biRJ33ViZBMXlIe85ljiTjvk6MAAAAEcAAAAEAAAAAAAAAAAAgAAAAAAAAAAAACAAfgAeAOABAAAAIAAA_AAAABBwA0IU5pFBtV8gqEbS9YVG1S_SiJc0T1lKA25hMVIAWgA';
 let associatedObjectId = '';
 
 exports.gethubspotdata =  async (req,res) =>{
-        console.log("inside get route------")
-        // res.send("hello world");
         const initialjson = req.query
         console.log((req.query));
-        
+        console.log("21-------------------------------------")
          associatedObjectId = req.query.associatedObjectId;
          userid = req.query.userId;
 
@@ -29,9 +27,13 @@ exports.gethubspotdata =  async (req,res) =>{
           .promise()
           .query(`SELECT * FROM prelims WHERE integrationid = ${associatedObjectId}`)
     
-          console.log('rows',rows)
+          // first check if permit record already exists to db 
+          const [permit] = await con.promise().query(`
+          SELECT * from permits where integrationid = ${associatedObjectId}`);
 
-          if(rows.length >= 1){
+
+          console.log("34-----------------------------")
+          if(rows.length >= 1 && permit.length >=1){
 
             return res.send(
               {
@@ -49,11 +51,174 @@ exports.gethubspotdata =  async (req,res) =>{
                       },
                     ]
                   },                    
+                  {
+                    "objectId": 255,
+                    "title": "PERMIT request is already created for this record",
+                    "actions": [
+                      {
+                        "type": "IFRAME",
+                        "width": 890,
+                        "height": 748,
+                        "uri": "https://d482-61-95-163-126.ngrok-free.app/api/permit/status",
+                        "label": "view status"
+                      },
+                    ]
+                  },                    
                 ],     
               }
-            )    
+              )    
           }
+          else if(rows.length < 1 && permit.length >= 1){
+                console.log("sdsdfsd");
 
+              // check initial mapping for prelim already exists
+              const [prelim] = await con.promise().query(`
+              SELECT * from hubspotjsons where userid = ${userid}`);
+
+              if(prelim.length>=1){
+                return res.send(
+                  {
+                    "results": [
+                      {
+                        "objectId": 233,
+                        "title": "CREATE DIRECT PRELIM REQUEST",
+                        "actions": [
+                          {
+                            "type": "IFRAME",
+                            "width": 890,
+                            "height": 748,
+                            "uri": "https://d482-61-95-163-126.ngrok-free.app/mappedjson/submit",
+                            "label": "create prelim request"
+                          },
+                        ]
+                      },                    
+                      {
+                        "objectId": 255,
+                        "title": "PERMIT request is already created for this record",
+                        "actions": [
+                          {
+                            "type": "IFRAME",
+                            "width": 890,
+                            "height": 748,
+                            "uri": "https://d482-61-95-163-126.ngrok-free.app/api/permit/status",
+                            "label": "view permit status"
+                          },
+                        ]
+                      },                    
+                    ],     
+                  }
+                ) 
+              }
+
+                return res.send(
+                  {
+                    "results": [
+                      {
+                        "objectId": 233,
+                        "title": "CREATE INITIAL PRELIM MAPPING",
+                        "actions": [
+                          {
+                            "type": "IFRAME",
+                            "width": 890,
+                            "height": 748,
+                            "uri": "https://d482-61-95-163-126.ngrok-free.app/api/form",
+                            "label": "view status"
+                          },
+                        ]
+                      },                    
+                      {
+                        "objectId": 255,
+                        "title": "PERMIT request is already created for this record",
+                        "actions": [
+                          {
+                            "type": "IFRAME",
+                            "width": 890,
+                            "height": 748,
+                            "uri": "https://d482-61-95-163-126.ngrok-free.app/api/permit/status",
+                            "label": "view permit status"
+                          },
+                        ]
+                      },                    
+                    ],     
+                  }
+                ) 
+          }
+          else if(permit.length < 1 && rows.length >=1){
+            console.log("inside else if")
+
+                          // check initial mapping for permit already exists
+                          const [permit] = await con.promise().query(`
+                          SELECT * from hubspotjsons where userid = ${userid}`);
+            
+                          if(permit.length>=1){
+                            return res.send(
+                              {
+                                "results": [
+                                  {
+                                    "objectId": 233,
+                                    "title": "PRELIM request is already created for this record",
+                                    "actions": [
+                                      {
+                                        "type": "IFRAME",
+                                        "width": 890,
+                                        "height": 748,
+                                        "uri": "https://d482-61-95-163-126.ngrok-free.app/api/status",
+                                        "label": "view prelim status"
+                                      },
+                                    ]
+                                  },                    
+                                  {
+                                    "objectId": 234,
+                                    "title": "CREATE DIRECT PERMIT REQUEST",
+                                    "actions": [
+                                      {
+                                        "type": "IFRAME",
+                                        "width": 890,
+                                        "height": 748,
+                                        "uri": "https://d482-61-95-163-126.ngrok-free.app/api/permit/mappedjson",
+                                        "label": "Direct permit request"
+                                      },
+                                    ]
+                                  },                    
+                                ],     
+                              }
+                            ) 
+                          }
+            
+                            return res.send(
+                              {
+                                "results": [
+                                  {
+                                    "objectId": 233,
+                                    "title": "PRELIM request is already created for this record",
+                                    "actions": [
+                                      {
+                                        "type": "IFRAME",
+                                        "width": 890,
+                                        "height": 748,
+                                        "uri": "https://d482-61-95-163-126.ngrok-free.app/api/status",
+                                        "label": "view prelim status"
+                                      },
+                                    ]
+                                  },                    
+                                  {
+                                    "objectId": 255,
+                                    "title": "CREATE INTIAL MAPPING PERMIT REQUEST",
+                                    "actions": [
+                                      {
+                                        "type": "IFRAME",
+                                        "width": 890,
+                                        "height": 748,
+                                        "uri": "https://d482-61-95-163-126.ngrok-free.app/api/permit/form",
+                                        "label": "create permit request"
+                                      },
+                                    ]
+                                  },                    
+                                ],     
+                              }
+                            ) 
+          }else{
+            console.log("else");
           const schema = await axios.get("https://api.hubapi.com/crm/v3/schemas/deals", {
             headers: { Authorization: `Bearer ${access_token}` }
           }).catch(error => {
@@ -63,11 +228,9 @@ exports.gethubspotdata =  async (req,res) =>{
           if (!schema) {
             return res.status(200).send('no schema found');
           }
-            
-          // console.log("schema",schema.data.properties);
+           
           const schemaallproperties = schema.data.properties
           const propertiesname = schemaallproperties.map((ele) => ele.name);
-          // console.log("propertiesname", propertiesname);
       
           if (propertiesname) {
 
@@ -75,7 +238,8 @@ exports.gethubspotdata =  async (req,res) =>{
             const [rows] = await con
             .promise()
             .query(`SELECT * FROM hubspotjsons WHERE userid = ${userid}`)
-      
+           
+            console.log("80----------------------------")
             if(rows.length >= 1 ){
               return res.send(
                 {
@@ -93,10 +257,26 @@ exports.gethubspotdata =  async (req,res) =>{
                         }
                       ]
                     },
+                    {
+                      "objectId": 990,
+                      "title": "CREATE PERMIT REQUEST",
+                      "actions": [
+                        {
+                          "type": "IFRAME",
+                          "width": 890,
+                          "height": 748,
+                          "uri": "https://d482-61-95-163-126.ngrok-free.app/api/permit/mappedjson",
+                          "label": "Create permit request"
+                        }
+                      ]
+                    },
                   ],        
                 }
               )}else{
-                return res.send(
+
+              // this is for mapping of schema( permit,prelim,.... and all other module ) it is one time
+               
+              return res.send(
                   {
                     "results": [
                       {
@@ -112,19 +292,31 @@ exports.gethubspotdata =  async (req,res) =>{
                           }
                         ]
                       },
+                      {
+                        "objectId": 400,
+                        "title": "CREATE PERMIT REQUEST",
+                        "actions": [
+                          {
+                            "type": "IFRAME",
+                            "width": 890,
+                            "height": 748,
+                            "uri": "https://d482-61-95-163-126.ngrok-free.app/api/permit/form",
+                            "label": "Create permit request"
+                          }
+                        ]
+                      },  
                     ],        
                   }
                 )
               }
           }
         }
+      }
 }
 
 exports.hubspotintialform = async ( req,res ) => {
 
-//  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-// res.send("api form hitting");
-
+  console.log("reqhubspotinitialform",req);
      const schema = await axios.get("https://api.hubapi.com/crm/v3/schemas/deals", {
     headers: { Authorization: `Bearer ${access_token}` }
   }).catch(error => {
@@ -167,6 +359,8 @@ exports.hubspotmappedform = async (req,res) => {
 
   let propertiesinarray = Object.values(json_object);
 
+  //remove userid
+  propertiesinarray.pop();
 
 //   const dealschemaobject = {};
 //   propertiesinarray.forEach(item => {
@@ -185,7 +379,7 @@ exports.hubspotmappedform = async (req,res) => {
   console.log("join", joinpropertiesinarray);
   console.log("reqbody",req.body);
   console.log("associatedObjectId", associatedObjectId);
-  if (req.body) {
+  // if (req.body) {
     await axios.get(`https://api.hubapi.com/crm/v3/objects/deals/${associatedObjectId}?properties=${joinpropertiesinarray}`,
       {
         headers: { Authorization: `Bearer ${access_token}` }
@@ -215,12 +409,16 @@ exports.hubspotmappedform = async (req,res) => {
 
   //remove userid field before passing to rendering page
   delete json_object.userid;
+  
+  //delete extra keys from schema 
+  delete json_object.reviewissues;
+  delete json_object.requestdeclinereason;
 
 // }
  res.render('index', {  json_object });
     })
   }
-}
+// }
 
 exports.hubspotfinalform = async (req,res) =>{
     console.log(typeof(req.body));
@@ -304,9 +502,9 @@ console.log("filesrelatedmorphsrecord",filesrelatedmorphsrecord);
     return res.send("deal id is not defined");
 }
 
-//direct call without intialmapping 
 exports.hubspotmappedjsonsubmit = async ( req,res) =>{
   
+  console.log("req---------------------------",req);
   const [rows] = await con
   .promise()
   .query(`SELECT address,company,email,monthlybill,name FROM hubspotjsons WHERE userid = ${userid}`);
@@ -364,6 +562,220 @@ exports.hubspotmappedjsonsubmit = async ( req,res) =>{
  res.render('index', {  json_object });
     })
   }
-
-
 }
+
+// initial permit mapping form--
+exports.hubspotintialpermitform = async ( req,res ) => {
+
+  console.log("inside permitintialmapping form--------------");
+     const schema = await axios.get("https://api.hubapi.com/crm/v3/schemas/deals", {
+    headers: { Authorization: `Bearer ${access_token}` }
+  }).catch(error => {
+    console.log("error")
+  });
+  if (!schema) {
+    return res.status(200).send('no schema found');
+  }  
+  
+  
+  const schemaallpropertiesdeal = schema.data.properties
+  const propertiesname = schemaallpropertiesdeal.map((ele) => ele.name);
+  console.log("propertiesname", propertiesname);
+  res.render('permitintialmappingform', {  propertiesname }); 
+}
+
+exports.hubspotpermitmappedform = async (req,res) =>{
+  console.log("req", req.body);
+  
+  const json_object = req.body;
+
+    json_object.userid = userid;
+
+
+  // store json for particular user in database-----------------------
+  const storejson = con.query(
+    'INSERT INTO hubspotjsons SET ?',
+    json_object,
+    (err, res) => {
+      if (err) {throw err}
+      else{
+        console.log("succeess",res);
+      }
+    })
+  console.log("userid",userid);
+
+  let propertiesinarray = Object.values(json_object);
+
+  console.log("propertiesinarray", propertiesinarray)
+  let joinpropertiesinarray = propertiesinarray.join()
+  console.log("join", joinpropertiesinarray);
+  console.log("reqbody",req.body);
+  console.log("associatedObjectId", associatedObjectId);
+  if (req.body) {
+    await axios.get(`https://api.hubapi.com/crm/v3/objects/deals/${associatedObjectId}?properties=${joinpropertiesinarray}`,
+      {
+        headers: { Authorization: `Bearer ${access_token}` }
+      }
+    ).then((data) => {
+    //   if (data.data.properties) {
+        const hubspotdatafilledobject = data.data.properties;
+
+        // deleting properties not need to render ----------------
+        delete  hubspotdatafilledobject.createdate;
+        delete hubspotdatafilledobject.hs_lastmodifieddate;
+        delete hubspotdatafilledobject.hs_object_id;
+
+        console.log('hubspotdatafilledobject', hubspotdatafilledobject)
+
+        //converting that values in array to pass to  index.ejs page to render ------
+        const arrayofhubspotproperites = Object.values(hubspotdatafilledobject);
+        console.log('arrayofhubspotproperites', arrayofhubspotproperites)
+
+//------------ Check if the length of the array matches the number of keys in the object
+
+// if (Object.keys(json_object).length === arrayofhubspotproperites.length) {                        // check is hide for value
+  Object.keys(json_object).forEach((key, index) => {
+    json_object[key] = arrayofhubspotproperites[index];
+  });
+  console.log("new",json_object);
+
+  //remove userid field before passing to rendering page
+  delete json_object.userid;
+
+// }
+ res.render('permitindex', {  json_object });
+    })
+}
+}
+
+exports.hubspotfinalpermitform = async (req,res) =>{
+  console.log(typeof(req.body));
+   
+  const permitdataobject = req.body
+   
+// added more keys to store prelim request in db--------------
+permitdataobject.createdbyid = userid
+permitdataobject.integrationsource = 'hubspot'
+permitdataobject.integrationid = associatedObjectId;
+permitdataobject.status = 'created'   // status is updating
+
+ console.log("prelimobj",permitdataobject);
+
+       con.query(
+         'INSERT INTO permits SET ?',
+         permitdataobject,
+         (err, res) => {
+           if (err) {throw err}
+           else{
+             console.log("succeess",res);
+           }
+         })
+
+
+ res.send("successfully created permit req"); 
+}
+
+exports.hubspotrecordpermitstatus = async (req,res) => {
+  if(associatedObjectId){
+    console.log("lfsdg",associatedObjectId);
+    const [rows] = await con
+    .promise()
+    .query(`SELECT * FROM permits WHERE integrationid = ${associatedObjectId}`)
+
+    console.log('rows',rows)
+    if(rows.length < 1){
+     res.send('no prelim record is created for this deal till now! for creating record please go to create prelim request')
+    }
+    
+    const permitdata = rows[0];
+   
+    const responseback = {
+      id:permitdata.id,
+      name:permitdata.name,
+      status: permitdata.status
+    }
+     
+    console.log("permitdata",permitdata);
+
+    if(permitdata.status == 'delivered'){
+    // fetch files id from files_related_morphs
+
+    const [filesrelatedmorphsrecord] = await con
+    .promise()
+    .query(`SELECT * FROM files_related_morphs where related_id = ${permitdata.id}`)
+
+    
+console.log("filesrelatedmorphsrecord",filesrelatedmorphsrecord);
+
+    if(filesrelatedmorphsrecord.length >= 1){
+        let record = filesrelatedmorphsrecord[0];
+        
+        console.log("record",record);
+        const [filerecord] = await con
+        .promise()
+        .query(`SELECT * FROM files where id = ${record.file_id}`)
+        console.log("filerecord",filerecord);
+        let recordurl = filerecord[0].url;
+        console.log("recordurl",recordurl);
+        //adding architecturaldesign to response when status id delivered
+        responseback.architecturaldesign = recordurl;
+        }
+        return res.render('permitdelivered', { responseback });
+    }
+    return res.render('permitwithoutdelivered', { responseback });
+
+  }
+
+  return res.send("deal id is not defined");
+}
+
+exports.hubspotpermitmappedjsonsubmit = async (req,res) =>{
+  console.log("inside hubspotpermitmappedjsonsubmit-----------");
+  const [rows] = await con
+  .promise()
+  .query(`SELECT address,company,email,monthlybill,name,reviewissues,requestdeclinereason FROM hubspotjsons WHERE userid = ${userid}`);
+
+  const json_object = rows[0]
+  let propertiesinarray = Object.values(json_object);
+
+  console.log("jsonobject-------------",json_object);
+
+  console.log("propertiesinarray", propertiesinarray)
+  let joinpropertiesinarray = propertiesinarray.join()
+  console.log("join", joinpropertiesinarray);
+  console.log("reqbody",req.body);
+  console.log("associatedObjectId", associatedObjectId);
+  // if (req.body) {
+    await axios.get(`https://api.hubapi.com/crm/v3/objects/deals/${associatedObjectId}?properties=${joinpropertiesinarray}`,
+      {
+        headers: { Authorization: `Bearer ${access_token}` }
+      }
+    ).then((data) => {
+      console.log("data",data);
+    //   if (data.data.properties) {
+        const hubspotdatafilledobject = data.data.properties;
+        console.log('hubspotdatafilledobject', hubspotdatafilledobject)
+        
+        // delete unneccesary keys
+        delete hubspotdatafilledobject.createdate;
+        delete hubspotdatafilledobject.hs_lastmodifieddate;
+        delete hubspotdatafilledobject.hs_object_id;
+        delete hubspotdatafilledobject.userId;
+
+        //converting that values in array to pass to  index.ejs page to render ------
+        const arrayofhubspotproperites = Object.values(hubspotdatafilledobject);
+        console.log('arrayofhubspotproperites', arrayofhubspotproperites)
+
+//------------ Check if the length of the array matches the number of keys in the object
+
+// if (Object.keys(json_object).length === arrayofhubspotproperites.length) {                        // check is hide for value
+  Object.keys(json_object).forEach((key, index) => {
+    json_object[key] = arrayofhubspotproperites[index];
+  });
+  console.log("new",json_object);
+// }
+ res.render('permitindex', {  json_object });
+    })
+  } 
+// }
+
