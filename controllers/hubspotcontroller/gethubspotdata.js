@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const pool = require('../../config/mysql');
 
 let userid = '';
-let access_token = 'CKCN69esMRIOQIEAQAAAYQIAAAAYAAEYv4bmFCDm0MgcKMu-fDIUZS5biRJ33ViZBMXlIe85ljiTjvk6MAAAAEcAAAAEAAAAAAAAAAAAgAAAAAAAAAAAACAAfgAeAOABAAAAIAAA_AAAABBwA0IU5pFBtV8gqEbS9YVG1S_SiJc0T1lKA25hMVIAWgA';
+let access_token = 'CIOy5oStMRIOQIEAQAAAYQIAAAAYAAkYv4bmFCDm0MgcKMu-fDIUSEAwUOxL1G4F7AVFS9QjUCul5k46MAAAAEcAAAAEAAAAAAAAAAAAgAAAAAAAAAAAACAAfgAeAOABAAAAIAAA_AAAABBxA0IUZz-bceaStpQzKQT-7GBQe7SS7atKA25hMVIAWgA';
 let associatedObjectId = '';
 
 exports.gethubspotdata =  async (req,res) =>{
@@ -40,7 +40,7 @@ exports.gethubspotdata =  async (req,res) =>{
                 "results": [
                   {
                     "objectId": 233,
-                    "title": "PRELIM request is already created for this record",
+                    "title": "PRELIM request is already created for this record",           
                     "actions": [
                       {
                         "type": "IFRAME",
@@ -344,17 +344,23 @@ exports.hubspotmappedform = async (req,res) => {
     json_object.userid = userid;
   // }
 
+//check if json for particular user is exists in database---
+const [alreadyjson] = await con.promise().query(`select * from hubspotjsons where userid = ${userid}`);
+console.log("already",alreadyjson);
 
   // store json for particular user in database-----------------------
-  const storejson = con.query(
-    'INSERT INTO hubspotjsons SET ?',
-    json_object,
-    (err, res) => {
-      if (err) {throw err}
-      else{
-        console.log("succeess",res);
-      }
-    })
+  if(!alreadyjson.length){
+    console.log("inside hubspot json -----------------------------")
+    const storejson = con.query(
+      'INSERT INTO hubspotjsons SET ?',
+      json_object,
+      (err, res) => {
+        if (err) {throw err}
+        else{
+          console.log("succeess",res);
+        }
+      })
+  }
   console.log("userid",userid);
 
   let propertiesinarray = Object.values(json_object);
@@ -475,7 +481,7 @@ exports.hubspotrecordstatus = async (req,res) =>
 
       const [filesrelatedmorphsrecord] = await con
       .promise()
-      .query(`SELECT * FROM files_related_morphs where related_id = ${prelimdata.id}`)
+      .query(`SELECT * FROM files_related_morphs where related_id = ${prelimdata.id} AND field = "prelimdesign"`)
 
       
 console.log("filesrelatedmorphsrecord",filesrelatedmorphsrecord);
@@ -581,7 +587,7 @@ exports.hubspotintialpermitform = async ( req,res ) => {
   const schemaallpropertiesdeal = schema.data.properties
   const propertiesname = schemaallpropertiesdeal.map((ele) => ele.name);
   console.log("propertiesname", propertiesname);
-  res.render('permitintialmappingform', {  propertiesname }); 
+  res.render('permitinitialmappingform', {  propertiesname }); 
 }
 
 exports.hubspotpermitmappedform = async (req,res) =>{
@@ -684,7 +690,7 @@ exports.hubspotrecordpermitstatus = async (req,res) => {
 
     console.log('rows',rows)
     if(rows.length < 1){
-     res.send('no prelim record is created for this deal till now! for creating record please go to create prelim request')
+     res.send('no permit record is created for this deal till now! for creating record please go to create prelim request')
     }
     
     const permitdata = rows[0];
@@ -702,7 +708,7 @@ exports.hubspotrecordpermitstatus = async (req,res) => {
 
     const [filesrelatedmorphsrecord] = await con
     .promise()
-    .query(`SELECT * FROM files_related_morphs where related_id = ${permitdata.id}`)
+    .query(`SELECT * FROM files_related_morphs where related_id = ${permitdata.id} AND field = "architecturaldesign"`);
 
     
 console.log("filesrelatedmorphsrecord",filesrelatedmorphsrecord);
@@ -715,7 +721,7 @@ console.log("filesrelatedmorphsrecord",filesrelatedmorphsrecord);
         .promise()
         .query(`SELECT * FROM files where id = ${record.file_id}`)
         console.log("filerecord",filerecord);
-        let recordurl = filerecord[0].url;
+        let recordurl = filerecord[0]?.url;
         console.log("recordurl",recordurl);
         //adding architecturaldesign to response when status id delivered
         responseback.architecturaldesign = recordurl;

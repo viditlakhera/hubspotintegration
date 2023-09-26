@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { gethubspotdata, hubspotintialform, hubspotmappedform, hubspotfinalform, hubspotrecordstatus, hubspotmappedjsonsubmit,hubspotpermitmappedform, hubspotrecordpermitstatus, hubspotpermitmappedjsonsubmit,hubspotfinalpermitform } = require("../../controllers/hubspotcontroller/gethubspotdata");
+const { gethubspotdata, hubspotintialform, hubspotmappedform, hubspotfinalform, hubspotrecordstatus, hubspotmappedjsonsubmit,hubspotpermitmappedform, hubspotrecordpermitstatus, hubspotpermitmappedjsonsubmit,hubspotfinalpermitform, hubspotintialpermitform } = require("../../controllers/hubspotcontroller/gethubspotdata");
 
 router.get('/', async (req, res) => {
   try {
@@ -66,7 +66,7 @@ router.get('/api/status', async (req, res) => {
 router.get('/api/permit/form', async (req, res) => {
   try {
     console.log("----------inside apipermitform route");
-    return await hubspotintialform(req,res);
+    return await hubspotintialpermitform(req,res);
   } catch (error) {
     res.status(400).send({ msg: 'Something Went Wrong', err: error.message })
   }
@@ -109,6 +109,19 @@ router.get('/api/permit/mappedjson', async (req,res) =>{
     // res.send('success')
   } catch (error) {
     res.status(400).send({ msg: 'Something Went Wrong', err: error.message })
+  }
+})
+
+
+
+//------------------------------------webhook--------------------------------------
+
+router.post('/webhook', async (req,res) => {
+  try {
+     console.log("req---------------",req);
+     res.send('hlw world');
+  } catch (error) {
+    res.status(400).send({msg:'Something went wrong', err: error.message});
   }
 })
 
