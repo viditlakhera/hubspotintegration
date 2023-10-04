@@ -1,5 +1,5 @@
 {
-  "name": "hubspot",
+  "name": "hubspotintegration",
   "version": "1.0.0",
   "description": "this is hubspot integration project",
   "main": "nodemon index.js",
