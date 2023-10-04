@@ -64,27 +64,16 @@ exports.gethubspotdata =  async (req,res) =>{
           bodydata.password = "test123";
           bodydata.role = 10,
           bodydata.superadmintype = "client",
-          bodydata.masterparentid = 232
-          // console.log("36");
-
-          // req.query.password = "test123";
-          // req.query.email = req.query.userEmail;
-          // req.query.username = req.query.userEmail;
-          // req.query.role = 10;
-          // req.query.superadmintype = 'client';
-          // req.query.masterparentid = 232;
+          bodydata.masterparentid = 232,
+          bodydata.sourcetype = "hubspot",
+          bodydata.sourceid = userid
+          console.log("68");
 
           let finalobj = req.query;
-          // console.log("emailtype==>", finalobj);
-         
-        //  console.log('useremail',req.query.userEmail);
-    
           console.log("bodydata---",bodydata);
 
       if(finalobj.userEmail){
-          const registereduser = await axios.get('http://localhost:1338/api/prelims/detail/870',{
-            headers: { Authorization: `Bearer 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjMyLCJpYXQiOjE2OTYyNDQyMDksImV4cCI6MTY5ODgzNjIwOX0.1M9UPRd33DqyuiuIQN1FGb10jVIhBoaSN01-O0oXNZE'`}
-          })
+          const registereduser = await axios.post('https://titans.wattmonk.com/api/auth/local/register',bodydata)
           .then(function (response) {
             console.log(response);
           })
