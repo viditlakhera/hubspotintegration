@@ -5,21 +5,93 @@ const express = require('express');
 const app = express();
 const mysql = require('mysql2');
 const path = require('path');
+//const fetch = require("node-fetch");
 const bodyParser = require('body-parser');
 const ejs = require('ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 const pool = require('../../config/mysql');
+const { oauth,checktokenexpired,extractaccess_token,refreshtoken } = require('../../controllers/hubspotcontroller/oauth');
 
 let userid = '';
-let access_token = 'CIOy5oStMRIOQIEAQAAAYQIAAAAYAAkYv4bmFCDm0MgcKMu-fDIUSEAwUOxL1G4F7AVFS9QjUCul5k46MAAAAEcAAAAEAAAAAAAAAAAAgAAAAAAAAAAAACAAfgAeAOABAAAAIAAA_AAAABBxA0IUZz-bceaStpQzKQT-7GBQe7SS7atKA25hMVIAWgA';
+let access_token ='';
 let associatedObjectId = '';
+let bodydata = {};
+
+//-------------------app detail----------------------------------
 
 exports.gethubspotdata =  async (req,res) =>{
         const initialjson = req.query
-        console.log((req.query));
-        console.log("21-------------------------------------")
+        console.log(req.query);
          associatedObjectId = req.query.associatedObjectId;
          userid = req.query.userId;
+        
+        //  let useremail = toString(req.query.userEmail);
+   //hitting api for checking expiry of access token-----------------
+    const [fetchtoken] = await con.promise().query(`SELECT userdetail FROM hubspotuserdetails WHERE JSON_EXTRACT(userdetail, "$.email") = '${req.query.userEmail}'`);
+    console.log('fetchtoken',fetchtoken);
+    
+    if(fetchtoken.length){
+       access_token = fetchtoken[0].userdetail.token;
+       
+       console.log("accesstoken-----",access_token);
+       //hitting any api for checking it token is expired or not------------------------
+       const schema = await axios.get("https://api.hubapi.com/crm/v3/schemas/deals", {
+        headers: { Authorization: `Bearer ${access_token}` }
+      }).then(response =>{
+        console.log(response);
+      }).catch(async error => {
+        if(error.response.status == 401){
+            console.log('line 44')
+          // call refresh token api to generate access token again and save it in db--
+            let responsedata = await refreshtoken(fetchtoken);
+            
+
+          //fetching access token from database----
+          const [token] = await con.promise().query(`SELECT userdetail FROM hubspotuserdetails WHERE JSON_EXTRACT(userdetail, "$.email") = '${req.query.userEmail}'`);
+          console.log("token",token);
+          
+          //set access token-------------------------------------------- 
+          access_token = token[0].userdetail.token
+        }});
+       
+
+    }
+
+        if(userid){
+          // register user to our portal one time--------------
+          bodydata.email = req.query.userEmail;
+          bodydata.username = req.query.userEmail;
+          bodydata.password = "test123";
+          bodydata.role = 10,
+          bodydata.superadmintype = "client",
+          bodydata.masterparentid = 232
+          // console.log("36");
+
+          // req.query.password = "test123";
+          // req.query.email = req.query.userEmail;
+          // req.query.username = req.query.userEmail;
+          // req.query.role = 10;
+          // req.query.superadmintype = 'client';
+          // req.query.masterparentid = 232;
+
+          let finalobj = req.query;
+          // console.log("emailtype==>", finalobj);
+         
+        //  console.log('useremail',req.query.userEmail);
+    
+          console.log("bodydata---",bodydata);
+
+      if(finalobj.userEmail){
+          const registereduser = await axios.get('http://localhost:1338/api/prelims/detail/870',{
+            headers: { Authorization: `Bearer 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjMyLCJpYXQiOjE2OTYyNDQyMDksImV4cCI6MTY5ODgzNjIwOX0.1M9UPRd33DqyuiuIQN1FGb10jVIhBoaSN01-O0oXNZE'`}
+          })
+          .then(function (response) {
+            console.log(response);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+   }};
 
         if (associatedObjectId) {
           // first check if prelim record exists to db then show to user you already raise request for this record------

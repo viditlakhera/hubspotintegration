@@ -1,6 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const { gethubspotdata, hubspotintialform, hubspotmappedform, hubspotfinalform, hubspotrecordstatus, hubspotmappedjsonsubmit,hubspotpermitmappedform, hubspotrecordpermitstatus, hubspotpermitmappedjsonsubmit,hubspotfinalpermitform, hubspotintialpermitform } = require("../../controllers/hubspotcontroller/gethubspotdata");
+const { oauth,checktokenexpired,extractaccess_token } = require('../../controllers/hubspotcontroller/oauth');
+
+//--------------------------------------------oauth----------------------------------------
+router.get('/oauth/callback', async (req,res) =>{
+try {
+     console.log("inside oauth callback route")
+     await oauth(req,res);
+} catch (error) {
+  res.status(400).send({msg: 'Something Went Wrong', err:error.message});
+}
+});
 
 router.get('/', async (req, res) => {
   try {
